@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AD_UNIT_ID_FOR_BANNER_TEST</key>
+	<string>ca-app-pub-3940256099942544/2934735716</string>
+	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
+	<string>ca-app-pub-3940256099942544/4411468910</string>
+	<key>CLIENT_ID</key>
+	<string>755127966854-3bn5pmghh4kq0t1e7ksuav71l3dt0fbc.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.755127966854-3bn5pmghh4kq0t1e7ksuav71l3dt0fbc</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAKJy7r8igpmKFNOrOPwt-jL3vnCPnx0Ik</string>
+	<key>GCM_SENDER_ID</key>
+	<string>755127966854</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.intbridge.CamApp</string>
+	<key>PROJECT_ID</key>
+	<string>fir-camapp</string>
+	<key>STORAGE_BUCKET</key>
+	<string>fir-camapp.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<true></true>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<false></false>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:755127966854:ios:3fe258617fe9450a</string>
+	<key>DATABASE_URL</key>
+	<string>https://fir-camapp.firebaseio.com</string>
+</dict>
+</plist>

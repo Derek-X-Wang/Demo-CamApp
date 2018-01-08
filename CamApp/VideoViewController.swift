@@ -17,6 +17,7 @@ class VideoViewController: UIViewController {
     private var videoURL: URL
     var player: AVPlayer?
     var playerController : AVPlayerViewController?
+    var deleteButton: UIButton?
     
     init(_ thumbnail: Thumbnail) {
         self.thumbnail = thumbnail
@@ -38,23 +39,22 @@ class VideoViewController: UIViewController {
         guard player != nil && playerController != nil else {
             return
         }
-        playerController!.showsPlaybackControls = false
+        playerController!.showsPlaybackControls = true
         
         playerController!.player = player!
         self.addChildViewController(playerController!)
         self.view.addSubview(playerController!.view)
         playerController!.view.frame = view.frame
         NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidReachEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self.player!.currentItem)
+//        let cancelButton = UIButton(frame: CGRect(x: 10.0, y: 10.0, width: 30.0, height: 30.0))
+//        cancelButton.setImage(#imageLiteral(resourceName: "icons8-delete-100"), for: UIControlState())
+//        cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
+//        view.addSubview(cancelButton)
         
-        let cancelButton = UIButton(frame: CGRect(x: 10.0, y: 10.0, width: 30.0, height: 30.0))
-        cancelButton.setImage(#imageLiteral(resourceName: "icons8-delete-100"), for: UIControlState())
-        cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
-        view.addSubview(cancelButton)
-        
-        let deleteButton = UIButton(frame: CGRect(x: view.frame.width - 40, y: 10, width: 30.0, height: 30.0))
-        deleteButton.setImage(#imageLiteral(resourceName: "icons8-waste-100"), for: UIControlState())
-        deleteButton.addTarget(self, action: #selector(remove), for: .touchUpInside)
-        view.addSubview(deleteButton)
+        deleteButton = UIButton(frame: CGRect(x: view.frame.width/2 - 15, y: 15, width: 30.0, height: 30.0))
+        deleteButton?.setImage(#imageLiteral(resourceName: "icons8-waste-100"), for: UIControlState())
+        deleteButton?.addTarget(self, action: #selector(remove), for: .touchUpInside)
+        view.addSubview(deleteButton!)
         
         // Allow background audio to continue to play
         do {
@@ -68,11 +68,6 @@ class VideoViewController: UIViewController {
         } catch let error as NSError {
             print(error)
         }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        player?.play()
     }
     
     override var prefersStatusBarHidden: Bool {

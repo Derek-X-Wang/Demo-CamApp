@@ -13,13 +13,17 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
 
     @IBOutlet weak var captureButton: SwiftyRecordButton!
     @IBOutlet weak var flipCameraButton: UIButton!
-    @IBOutlet weak var flashButton: UIButton!
+    @IBOutlet weak var toggleButton: UIButton!
+    
+    var vc: ViewController?
+    var isThumbnailsViewShowed = true
     
     override func viewDidLoad() {
+        videoGravity = .resizeAspectFill
         super.viewDidLoad()
         shouldPrompToAppSettings = true
         cameraDelegate = self
-        maximumVideoDuration = 10.0
+        maximumVideoDuration = 60.0
         shouldUseDeviceOrientation = true
         allowAutoRotate = true
         audioEnabled = true
@@ -113,9 +117,11 @@ extension CameraViewController {
         switchCamera()
     }
     
-    @IBAction func toggleFlashTapped(_ sender: Any) {
-        flashEnabled = !flashEnabled
-        toggleFlashAnimation()
+    @IBAction func toggleTapped(_ sender: Any) {
+        let notificationName = Notification.Name(rawValue: "TOGGLE_THUMBNAILSVIEW")
+        NotificationCenter.default.post(name: notificationName, object: self,
+                                        userInfo: [:])
+        toggleThumbnailsViewAnimation()
     }
 }
 
@@ -124,14 +130,14 @@ extension CameraViewController {
     
     fileprivate func hideButtons() {
         UIView.animate(withDuration: 0.25) {
-            self.flashButton.alpha = 0.0
+            self.toggleButton.alpha = 0.0
             self.flipCameraButton.alpha = 0.0
         }
     }
     
     fileprivate func showButtons() {
         UIView.animate(withDuration: 0.25) {
-            self.flashButton.alpha = 1.0
+            self.toggleButton.alpha = 1.0
             self.flipCameraButton.alpha = 1.0
         }
     }
@@ -155,11 +161,12 @@ extension CameraViewController {
         }
     }
     
-    fileprivate func toggleFlashAnimation() {
-        if flashEnabled == true {
-            flashButton.setImage(#imageLiteral(resourceName: "flash"), for: UIControlState())
+    fileprivate func toggleThumbnailsViewAnimation() {
+        isThumbnailsViewShowed = !isThumbnailsViewShowed
+        if isThumbnailsViewShowed {
+            toggleButton.setImage(#imageLiteral(resourceName: "icons8-sort-down-filled-100"), for: UIControlState())
         } else {
-            flashButton.setImage(#imageLiteral(resourceName: "flashOutline"), for: UIControlState())
+            toggleButton.setImage(#imageLiteral(resourceName: "icons8-sort-up-filled-100"), for: UIControlState())
         }
     }
 }

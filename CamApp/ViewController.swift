@@ -9,6 +9,8 @@
 import UIKit
 import RxSwift
 import Firebase
+import AVFoundation
+import AVKit
 
 class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     
@@ -23,6 +25,9 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         // Do any additional setup after loading the view, typically from a nib.
         // thumbnailsView.backgroundColor = UIColor.black
         thumbnailsView.register(ThumbnailCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: ThumbnailCollectionViewCell.self))
+        NotificationCenter.default.addObserver(self, selector: #selector(toggleThumbnailsView), name: NSNotification.Name(rawValue: "TOGGLE_THUMBNAILSVIEW"), object: nil)
+        
+        thumbnailsViewHeight.constant = view.frame.height / 4.5
         
         Auth.auth().signIn(withEmail: "demo@gmail.com", password: "88888888") { (user, error) in
             if (error != nil) {
@@ -40,9 +45,21 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         // Dispose of any resources that can be recreated.
     }
     
-//    override var prefersStatusBarHidden: Bool {
-//        return true
+//    override var preferredStatusBarStyle: UIStatusBarStyle {
+//        return .lightContent
 //    }
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+    
+    @objc func toggleThumbnailsView(notification: Notification) {
+        if thumbnailsViewHeight.constant == 0 {
+            thumbnailsViewHeight.constant = view.frame.height / 4.5
+        } else {
+            thumbnailsViewHeight.constant = 0
+        }
+        thumbnailsView.reloadData()
+    }
     
     fileprivate func setupData(_ user: User) {
         let databaseRef = Database.database().reference()
@@ -233,6 +250,14 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         thumbnailsView.setCollectionViewLayout(layout, animated: false)
     }
     
+    func getPlayerView(_ thumbnail: Thumbnail) -> AVPlayerViewController {
+        let player = AVPlayer(url: thumbnail.videoURL!)
+        let playerController = AVPlayerViewController()
+        playerController.showsPlaybackControls = false
+        
+        playerController.player = player
+        return playerController
+    }
 }
 
 // Collection View

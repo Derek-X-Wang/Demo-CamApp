@@ -27,9 +27,10 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
         shouldUseDeviceOrientation = true
         allowAutoRotate = true
         audioEnabled = true
-        
-        // disable capture button until session starts
         captureButton.buttonEnabled = false
+        
+        hideControl()
+        NotificationCenter.default.addObserver(self, selector: #selector(toggleControl), name: NSNotification.Name(rawValue: "TOGGLE_CONTROL"), object: nil)
     }
 
     override func didReceiveMemoryWarning() {
@@ -64,8 +65,6 @@ extension CameraViewController {
     func swiftyCam(_ swiftyCam: SwiftyCamViewController, didTake photo: UIImage) {
         print("photo taked")
         FirebaseUploadStream.send(FirebaseUpload(photo))
-//        let newVC = PhotoViewController(image: photo)
-//        self.present(newVC, animated: true, completion: nil)
     }
     
     func swiftyCam(_ swiftyCam: SwiftyCamViewController, didBeginRecordingVideo camera: SwiftyCamViewController.CameraSelection) {
@@ -83,8 +82,6 @@ extension CameraViewController {
     func swiftyCam(_ swiftyCam: SwiftyCamViewController, didFinishProcessVideoAt url: URL) {
         print("video taked")
         FirebaseUploadStream.send(FirebaseUpload(url))
-//        let newVC = VideoViewController(videoURL: url)
-//        self.present(newVC, animated: true, completion: nil)
     }
     
     func swiftyCam(_ swiftyCam: SwiftyCamViewController, didFocusAtPoint point: CGPoint) {
@@ -128,8 +125,29 @@ extension CameraViewController {
 // UI Animations
 extension CameraViewController {
     
+    @objc func toggleControl(notification: Notification) {
+        if captureButton.isHidden {
+            showControl()
+        } else {
+            hideControl()
+        }
+    }
+    
+    fileprivate func hideControl() {
+        captureButton.isHidden = true
+        toggleButton.isHidden = true
+        flipCameraButton.isHidden = true
+    }
+    
+    fileprivate func showControl() {
+        captureButton.isHidden = false
+        toggleButton.isHidden = false
+        flipCameraButton.isHidden = false
+    }
+    
     fileprivate func hideButtons() {
         UIView.animate(withDuration: 0.25) {
+            self.captureButton.alpha = 0.0
             self.toggleButton.alpha = 0.0
             self.flipCameraButton.alpha = 0.0
         }
@@ -137,6 +155,7 @@ extension CameraViewController {
     
     fileprivate func showButtons() {
         UIView.animate(withDuration: 0.25) {
+            self.captureButton.alpha = 1.0
             self.toggleButton.alpha = 1.0
             self.flipCameraButton.alpha = 1.0
         }

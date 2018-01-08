@@ -20,14 +20,21 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     var thumbnails = [Thumbnail]()
     let dispose = DisposeBag()
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        requestPermissions()
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         // thumbnailsView.backgroundColor = UIColor.black
+        
         thumbnailsView.register(ThumbnailCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: ThumbnailCollectionViewCell.self))
         NotificationCenter.default.addObserver(self, selector: #selector(toggleThumbnailsView), name: NSNotification.Name(rawValue: "TOGGLE_THUMBNAILSVIEW"), object: nil)
         
-        thumbnailsViewHeight.constant = view.frame.height / 4.5
+        DispatchQueue.main.async {
+            self.thumbnailsViewHeight.constant = self.view.frame.height / 4.5
+        }
         
         Auth.auth().signIn(withEmail: "demo@gmail.com", password: "88888888") { (user, error) in
             if (error != nil) {
@@ -45,9 +52,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         // Dispose of any resources that can be recreated.
     }
     
-//    override var preferredStatusBarStyle: UIStatusBarStyle {
-//        return .lightContent
-//    }
     override var prefersStatusBarHidden: Bool {
         return true
     }
@@ -114,7 +118,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 case .error(let err):
                     print(err)
                 case .next(let upload):
-                    print("Metadata is \(upload.metadata)")
+                    // print("Metadata is \(upload.metadata)")
                     self.addFileToFirebaseDatabase(upload)
                 case .completed:
                     print("FirebaseUpload Stream Completed")
@@ -250,13 +254,33 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         thumbnailsView.setCollectionViewLayout(layout, animated: false)
     }
     
-    func getPlayerView(_ thumbnail: Thumbnail) -> AVPlayerViewController {
-        let player = AVPlayer(url: thumbnail.videoURL!)
-        let playerController = AVPlayerViewController()
-        playerController.showsPlaybackControls = false
-        
-        playerController.player = player
-        return playerController
+    func requestPermissions() {
+//        let alert = UIAlertController(title: "Need Permissions", message: "Please go to settings and grant permissions", preferredStyle: .alert)
+//        let okAction = UIAlertAction(title: "ok", style: .default, handler: nil)
+//        alert.addAction(okAction)
+        let status = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
+        if status == AVAuthorizationStatus.authorized {
+            // Show camera
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "TOGGLE_CONTROL"), object: self,userInfo: [:])
+        } else if status == AVAuthorizationStatus.notDetermined {
+            // Request permission
+            AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: { (granted) -> Void in
+                if granted {
+                    // trick to resize container view
+                    DispatchQueue.main.async {
+                        self.thumbnailsViewHeight.constant = 0
+                    }
+                }
+                // SwiftCam will handle if user doesn't grant camera permission
+            })
+            AVCaptureDevice.requestAccess(for: AVMediaType.audio, completionHandler: { (granted) -> Void in
+                DispatchQueue.main.async {
+                    self.thumbnailsViewHeight.constant = self.view.frame.height / 4.5
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "TOGGLE_CONTROL"), object: self,userInfo: [:])
+                    self.thumbnailsView.reloadData()
+                }
+            })
+        }
     }
 }
 

@@ -46,10 +46,6 @@ class VideoViewController: UIViewController {
         self.view.addSubview(playerController!.view)
         playerController!.view.frame = view.frame
         NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidReachEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self.player!.currentItem)
-//        let cancelButton = UIButton(frame: CGRect(x: 10.0, y: 10.0, width: 30.0, height: 30.0))
-//        cancelButton.setImage(#imageLiteral(resourceName: "icons8-delete-100"), for: UIControlState())
-//        cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
-//        view.addSubview(cancelButton)
         
         deleteButton = UIButton(frame: CGRect(x: view.frame.width/2 - 15, y: 15, width: 30.0, height: 30.0))
         deleteButton?.setImage(#imageLiteral(resourceName: "icons8-waste-100"), for: UIControlState())
@@ -103,12 +99,7 @@ class VideoViewController: UIViewController {
                 self.present(alert, animated: true, completion: nil)
             }
         }
-            //.child(thumbnail.fileId)
-//            .removeValue { (error, df) in
-//                if let err = error {
-//                    print(err.localizedDescription)
-//                }
-//        }
+
     }
     
     @objc fileprivate func playerItemDidReachEnd(_ notification: Notification) {

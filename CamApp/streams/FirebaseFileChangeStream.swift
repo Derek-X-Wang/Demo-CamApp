@@ -49,7 +49,6 @@ class FirebaseFileChangeStream {
         }
         return false
     }
-    //static let loadedLocalStream = localFileStream.
     static let needDownloadStream = fileAddedStream.filter { (file) -> Bool in
         // if the current device is the uploader
         if file.uploadDevice == UIDevice.current.identifierForVendor!.uuidString {

@@ -68,75 +68,8 @@ class ThumbnailCollectionViewCell: UICollectionViewCell {
                 let image = getThumbnail(thumbnail!.videoURL!)
                 thumbnailImageView.image = image
             }
-//            playImageView.isHidden = true
-//            //uploadingLabel.isHidden = true
-//            //downloadingView.isHidden = true
-//            thumbnailImageView.isHidden = false
-//            switch thumbnail!.status {
-//            case .uploading:
-//                uploadingLabel.isHidden = false
-//            case .downloading:
-//                thumbnailImageView.isHidden = true
-//                //startFluidView()
-//                startLoadingView(.downloading)
-////                DispatchQueue.main.async {
-////                    self.startLoadingView(.downloading)
-////                }
-//            case .imageCompleted:
-//                thumbnailImageView.image = thumbnail?.image
-//            case .videoCompleted:
-//                playImageView.isHidden = false
-//                let image = getThumbnail(thumbnail!.videoURL!)
-//                thumbnailImageView.image = image
-//            }
         }
     }
-    
-//    func startLoadingView(_ type: ThumbnailViewStatus) {
-//        let indicatorType = type == .downloading ? NVActivityIndicatorType.ballPulse : NVActivityIndicatorType.cubeTransition
-//        let text = type == .downloading ? "Download" : "upload"
-//        loadingView = NVActivityIndicatorView(frame: self.frame, type: indicatorType, color: UIColor.white, padding: 30)
-//
-//        let animationTypeLabel = UILabel(frame: self.frame)
-//
-//        animationTypeLabel.text = text
-//        animationTypeLabel.sizeToFit()
-//        animationTypeLabel.textColor = UIColor.white
-//        animationTypeLabel.frame.origin.x += 5
-//        animationTypeLabel.frame.origin.y += CGFloat(self.frame.height) - animationTypeLabel.frame.size.height
-//
-//        //addSubview(loadingView!)
-//        addSubview(animationTypeLabel)
-//        //loadingView?.startAnimating()
-////        UIView.animate(withDuration: 0.5, animations: {
-////            self.loadingView?.alpha=1.0
-////            animationTypeLabel.alpha=1.0
-////        }, completion: { _ in
-//////            self.titleLabels.text = "Downloading"
-//////            self.startAnime.enabled = false
-//////            self.exampleContainerView.removeFromSuperview()
-//////            self.exampleContainerView = myView
-////        })
-//    }
-//
-//    func startFluidView() {
-//        if let fv = fluidView {
-//            fv.startAnimation()
-//        } else {
-//            fluidView = BAFluidView(frame: self.frame, startElevation: 0.6)!
-//            fluidView?.translatesAutoresizingMaskIntoConstraints = false
-//            fluidView?.strokeColor = UIColor.white
-//            fluidView?.fillColor = UIColor.blue
-//            fluidView?.keepStationary()
-//            fluidView?.startAnimation()
-//        }
-//        addSubview(fluidView!)
-//        addSubview(downloadingTextView)
-//        downloadingTextView.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
-//        downloadingTextView.bottomAnchor.constraint(equalTo: fluidView!.bottomAnchor).isActive = true
-//        downloadingTextView.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
-//        downloadingTextView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
-//    }
     
     func getThumbnail(_ url: URL) -> UIImage {
         let asset:AVAsset = AVAsset(url:url)
@@ -172,52 +105,6 @@ class ThumbnailCollectionViewCell: UICollectionViewCell {
         return imageView
     }()
     
-//    let uploadingLabel: UILabel = {
-//        let label = UILabel()
-//        label.text = "Uploading..."
-//        label.textColor = UIColor.white
-////        let effect = UIBlurEffect(style: .dark)
-////        let effectView = UIVisualEffectView(effect: effect)
-//        return label
-//    }()
-    
-//    let uploadingView: UITextView = {
-//        let tv = UITextView()
-//        tv.text = "Uploading..."
-//        tv.font = UIFont.systemFont(ofSize: 14)
-//        tv.translatesAutoresizingMaskIntoConstraints = false
-//        tv.backgroundColor = UIColor.clear
-//        tv.textColor = .white
-//        tv.isEditable = false
-//        return tv
-//    }()
-//
-//    let downloadingTextView: UITextView = {
-//        let tv = UITextView()
-//        tv.text = "Download"
-//        tv.font = UIFont.systemFont(ofSize: 14)
-//        tv.translatesAutoresizingMaskIntoConstraints = false
-//        tv.backgroundColor = UIColor.clear
-//        tv.textColor = .white
-//        tv.isEditable = false
-//        return tv
-//    }()
-    
-//    lazy var fluidView: BAFluidView = {
-//        let fv = BAFluidView(frame: self.frame, startElevation: 0.6)!
-//        fv.translatesAutoresizingMaskIntoConstraints = false
-//        fv.strokeColor = UIColor.white
-//        fv.fillColor = UIColor.blue
-//        fv.keepStationary()
-//        return fv
-//    }()
-    
-//    lazy var downloadingView: LoadingView = {
-//        let loadingview = LoadingView(frame: self.frame)
-//        loadingview.translatesAutoresizingMaskIntoConstraints = false
-//        return loadingview
-//    }()
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = UIColor.black
@@ -230,9 +117,6 @@ class ThumbnailCollectionViewCell: UICollectionViewCell {
     
     func setupViews() {
         addSubview(thumbnailImageView)
-//        addSubview(playImageView)
-//        addSubview(uploadingLabel)
-        //addSubview(downloadingView)
         
         addConstraintsWithFormat("H:|[v0]|", views: thumbnailImageView)
         addConstraintsWithFormat("V:|[v0]|", views: thumbnailImageView)
@@ -243,77 +127,6 @@ class ThumbnailCollectionViewCell: UICollectionViewCell {
         playImageView.widthAnchor.constraint(equalToConstant: 50).isActive = true
         playImageView.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-//        thumbnailImageView.addSubview(uploadingView)
-//        uploadingView.leftAnchor.constraint(equalTo: thumbnailImageView.leftAnchor).isActive = true
-//        uploadingView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-//        uploadingView.rightAnchor.constraint(equalTo: thumbnailImageView.rightAnchor).isActive = true
-//        uploadingView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
-        
-        //addSubview(fluidView)
-//        addSubview(downloadingTextView)
-//        downloadingTextView.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
-//        downloadingTextView.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
-//        downloadingTextView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
-//        downloadingView.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
-//        downloadingView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-//        downloadingView.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
-//        downloadingView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
-//        addConstraintsWithFormat("H:|[v0]|", views: downloadingView)
-//        addConstraintsWithFormat("V:|[v0]|", views: downloadingView)
     }
 }
 
-class LoadingView: UIView {
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-//        fluidView = BAFluidView(frame: self.frame, startElevation: 0.5)
-//        fluidView.strokeColor = UIColor.white
-//        fluidView.fillColor = UIColor.black
-//        fluidView.keepStationary()
-//        fluidView.startAnimation()
-//
-//        addSubview(fluidView)
-        
-//        UIView.animate(withDuration: 0.5, animations: {
-//            self.fluidView?.alpha=1.0
-//        }, completion: { _ in
-////            self.titleLabels.text = "Downloading"
-////            self.startAnime.enabled = false
-////            self.exampleContainerView.removeFromSuperview()
-////            self.exampleContainerView = myView
-//        })
-        backgroundColor = UIColor.green
-        
-        setupViews()
-    }
-    
-    lazy var fluidView: BAFluidView = {
-        let fv = BAFluidView(frame: self.frame, startElevation: 0.5)!
-        fv.strokeColor = UIColor.white
-        fv.fillColor = UIColor.black
-        fv.keepStationary()
-        return fv
-    }()
-    
-    let backgroundImage: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.image = #imageLiteral(resourceName: "background")
-        return imageView
-    }()
-    
-    func setupViews() {
-        //addSubview(backgroundImage)
-        //addSubview(fluidView)
-        
-//        addConstraintsWithFormat("H:|[v0]|", views: backgroundImage)
-//        addConstraintsWithFormat("V:|[v0]|", views: backgroundImage)
-//        addConstraintsWithFormat("H:|[v0]|", views: fluidView)
-//        addConstraintsWithFormat("V:|[v0]|", views: fluidView)
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init coder has not been implemented")
-    }
-}

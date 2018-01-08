@@ -255,31 +255,30 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
     func requestPermissions() {
-//        let alert = UIAlertController(title: "Need Permissions", message: "Please go to settings and grant permissions", preferredStyle: .alert)
-//        let okAction = UIAlertAction(title: "ok", style: .default, handler: nil)
-//        alert.addAction(okAction)
+        // SwiftCam will handle if user doesn't grant camera permission
         let status = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
         if status == AVAuthorizationStatus.authorized {
-            // Show camera
+            // Show camera control
             NotificationCenter.default.post(name: Notification.Name(rawValue: "TOGGLE_CONTROL"), object: self,userInfo: [:])
         } else if status == AVAuthorizationStatus.notDetermined {
             // Request permission
             AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: { (granted) -> Void in
                 if granted {
-                    // trick to resize container view
-                    DispatchQueue.main.async {
-                        self.thumbnailsViewHeight.constant = 0
-                    }
+                    self.firstLaunchUIAdjustment()
                 }
-                // SwiftCam will handle if user doesn't grant camera permission
             })
             AVCaptureDevice.requestAccess(for: AVMediaType.audio, completionHandler: { (granted) -> Void in
-                DispatchQueue.main.async {
-                    self.thumbnailsViewHeight.constant = self.view.frame.height / 4.5
-                    NotificationCenter.default.post(name: Notification.Name(rawValue: "TOGGLE_CONTROL"), object: self,userInfo: [:])
-                    self.thumbnailsView.reloadData()
-                }
             })
+        }
+    }
+    func firstLaunchUIAdjustment() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.thumbnailsViewHeight.constant = 0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            self.thumbnailsViewHeight.constant = self.view.frame.height / 4.5
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "TOGGLE_CONTROL"), object: self,userInfo: [:])
+            self.thumbnailsView.reloadData()
         }
     }
 }

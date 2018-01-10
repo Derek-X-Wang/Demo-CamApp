@@ -23,7 +23,8 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
         super.viewDidLoad()
         shouldPrompToAppSettings = true
         cameraDelegate = self
-        maximumVideoDuration = 60.0
+        maximumVideoDuration = 2.0
+        videoQuality = .resolution1280x720
         shouldUseDeviceOrientation = true
         allowAutoRotate = true
         audioEnabled = true

@@ -13,6 +13,9 @@
 		58C20F0E20016B8D007B42BD /* DocumentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C20F0D20016B8D007B42BD /* DocumentManager.swift */; };
 		58C20F102001AC69007B42BD /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C20F0F2001AC69007B42BD /* ImageViewController.swift */; };
 		58C20F122001AC83007B42BD /* VideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C20F112001AC83007B42BD /* VideoViewController.swift */; };
+		58C20F162004BB39007B42BD /* MetalVideoConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C20F152004BB39007B42BD /* MetalVideoConverter.swift */; };
+		58C20F18200572DC007B42BD /* MetalPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C20F17200572DB007B42BD /* MetalPipeline.swift */; };
+		58C20F1B2005856D007B42BD /* ImageStitchingProcessor.metal in Sources */ = {isa = PBXBuildFile; fileRef = 58C20F1A2005856D007B42BD /* ImageStitchingProcessor.metal */; };
 		58ECCF3C1FFE1A7500E58542 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ECCF3B1FFE1A7500E58542 /* AppDelegate.swift */; };
 		58ECCF3E1FFE1A7500E58542 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ECCF3D1FFE1A7500E58542 /* ViewController.swift */; };
 		58ECCF411FFE1A7500E58542 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58ECCF3F1FFE1A7500E58542 /* Main.storyboard */; };
@@ -59,6 +62,9 @@
 		58C20F0D20016B8D007B42BD /* DocumentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentManager.swift; sourceTree = "<group>"; };
 		58C20F0F2001AC69007B42BD /* ImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 		58C20F112001AC83007B42BD /* VideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewController.swift; sourceTree = "<group>"; };
+		58C20F152004BB39007B42BD /* MetalVideoConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalVideoConverter.swift; sourceTree = "<group>"; };
+		58C20F17200572DB007B42BD /* MetalPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalPipeline.swift; sourceTree = "<group>"; };
+		58C20F1A2005856D007B42BD /* ImageStitchingProcessor.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ImageStitchingProcessor.metal; sourceTree = "<group>"; };
 		58ECCF381FFE1A7500E58542 /* CamApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CamApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58ECCF3B1FFE1A7500E58542 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		58ECCF3D1FFE1A7500E58542 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -133,8 +139,18 @@
 			children = (
 				58ECCF771FFEEE4300E58542 /* Extension.swift */,
 				58C20F0D20016B8D007B42BD /* DocumentManager.swift */,
+				58C20F152004BB39007B42BD /* MetalVideoConverter.swift */,
 			);
 			path = helpers;
+			sourceTree = "<group>";
+		};
+		58C20F19200584E9007B42BD /* metal */ = {
+			isa = PBXGroup;
+			children = (
+				58C20F17200572DB007B42BD /* MetalPipeline.swift */,
+				58C20F1A2005856D007B42BD /* ImageStitchingProcessor.metal */,
+			);
+			path = metal;
 			sourceTree = "<group>";
 		};
 		58ECCF2F1FFE1A7500E58542 = {
@@ -167,6 +183,7 @@
 				58C20F0F2001AC69007B42BD /* ImageViewController.swift */,
 				58C20F112001AC83007B42BD /* VideoViewController.swift */,
 				58ECCF751FFEE76100E58542 /* ThumbnailCollectionViewCell.swift */,
+				58C20F19200584E9007B42BD /* metal */,
 				58C20F0C20016B19007B42BD /* helpers */,
 				58C20F07200032BF007B42BD /* streams */,
 				58ECCF691FFE23A600E58542 /* components */,
@@ -531,10 +548,13 @@
 				58C20F0E20016B8D007B42BD /* DocumentManager.swift in Sources */,
 				58ECCF3E1FFE1A7500E58542 /* ViewController.swift in Sources */,
 				58ECCF711FFE23A600E58542 /* PreviewView.swift in Sources */,
+				58C20F162004BB39007B42BD /* MetalVideoConverter.swift in Sources */,
 				58C20F102001AC69007B42BD /* ImageViewController.swift in Sources */,
+				58C20F18200572DC007B42BD /* MetalPipeline.swift in Sources */,
 				58ECCF701FFE23A600E58542 /* Orientation.swift in Sources */,
 				58ECCF721FFE23A600E58542 /* SwiftyCamButton.swift in Sources */,
 				58C20F122001AC83007B42BD /* VideoViewController.swift in Sources */,
+				58C20F1B2005856D007B42BD /* ImageStitchingProcessor.metal in Sources */,
 				58ECCF731FFE23A600E58542 /* SwiftyCamViewController.swift in Sources */,
 				58ECCF761FFEE76100E58542 /* ThumbnailCollectionViewCell.swift in Sources */,
 				58ECCF741FFE23A600E58542 /* SwiftyCamViewControllerDelegate.swift in Sources */,

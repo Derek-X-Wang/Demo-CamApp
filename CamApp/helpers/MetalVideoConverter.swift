@@ -85,7 +85,7 @@ class MetalVideoConverter {
         let frameHeight = intermediateFrames.first!.height
         let width = frameWidth * 10
         let totalFrames = frames!.count + intermediateFrames.count + 1
-        let row = Double(totalFrames + 1) / 10.0
+        let row = Double(totalFrames) / 10.0
         let height = frameHeight * Int(row.rounded(.up))
         let size = CGSize(width: width, height: height)
         UIGraphicsBeginImageContext(size)
@@ -96,13 +96,16 @@ class MetalVideoConverter {
             let areaSize = CGRect(x: indexX, y: indexY, width: frameWidth, height: frameHeight)
             if i == totalFrames - 1 {
                 // last one
+                UIImage(cgImage: frames!.last!).draw(in: areaSize)
             } else if i % 2 == 0 {
                 // even number, old frame
                 let index = i/2
+                // print("old \(index)")
                 UIImage(cgImage: frames![index]).draw(in: areaSize)
             } else {
                 // odd, new frame
                 let index = i/2
+                // print("new \(index)")
                 UIImage(cgImage: intermediateFrames[index]).draw(in: areaSize)
             }
         }
@@ -127,42 +130,48 @@ class MetalVideoConverter {
         let durationTime = CMTimeGetSeconds(duration)
     }
     // read video from url frame by frame
-    func imageFromVideo(url: URL, at time: TimeInterval) -> CGImage? {
-        let assetIG = AVAssetImageGenerator(asset: videoAsset)
-        assetIG.appliesPreferredTrackTransform = true
-        assetIG.apertureMode = AVAssetImageGeneratorApertureMode.encodedPixels
-        let cmTime = CMTime(seconds: time, preferredTimescale: 60)
-        let thumbnailImageRef: CGImage
-        do {
-            thumbnailImageRef = try assetIG.copyCGImage(at: cmTime, actualTime: nil)
-        } catch let error {
-            print("Error: \(error)")
-            return nil
-        }
-        
-        return thumbnailImageRef
-    }
+//    func retrieveFrameFromVideo(_ time: Int64) -> CGImage? {
+//
+//        let generator = AVAssetImageGenerator(asset: videoAsset)
+//        generator.requestedTimeToleranceAfter = kCMTimeZero
+//        generator.requestedTimeToleranceBefore = kCMTimeZero
+//
+//        let time = CMTime(value: time, timescale: <#T##CMTimeScale#>)
+//
+//
+//    }
     
     func retrieveFramesFromVideo(_ fps: Double=30.0) -> [CGImage] {
         var res = [CGImage]()
-        let generator = AVAssetImageGenerator(asset: videoAsset)
-        generator.appliesPreferredTrackTransform = true
-        generator.apertureMode = AVAssetImageGeneratorApertureMode.encodedPixels
         
-        let frameCount = CMTimeGetSeconds(videoAsset.duration) * fps
-        let boundary = Int(frameCount)
-        print("frameCount is \(frameCount)")
+        let vidLength = videoAsset.duration
+        let seconds = CMTimeGetSeconds(vidLength)
+        let requiredFramesCount = seconds * fps
+        let step = vidLength.value / Int64(requiredFramesCount)
+        
+        print("frameCount is \(requiredFramesCount)")
         do {
-            var i = 0.0
-            while i < Double(boundary) {
-                let cmTime = CMTime(seconds: i, preferredTimescale: CMTimeScale(Int(fps)))
-                let image = try generator.copyCGImage(at: cmTime, actualTime: nil)
+            var i: Double = 0
+            var value: Int64 = 0;
+            while i < requiredFramesCount {
+                let generator = AVAssetImageGenerator(asset: videoAsset)
+                generator.requestedTimeToleranceAfter = kCMTimeZero
+                generator.requestedTimeToleranceBefore = kCMTimeZero
+                generator.appliesPreferredTrackTransform = true
+                generator.apertureMode = AVAssetImageGeneratorApertureMode.encodedPixels
+                
+                let time = CMTime(value: value, timescale: vidLength.timescale)
+                
+                let image = try generator.copyCGImage(at: time, actualTime: nil)
                 res.append(image)
                 i += 1
+                value += step
             }
         } catch let error {
             print("Error: \(error)")
         }
+//        let image = UIImage(cgImage: res.last!)
+//        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
         return res
     }
     // merge image

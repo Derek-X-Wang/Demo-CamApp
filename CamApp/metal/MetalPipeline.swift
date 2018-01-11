@@ -9,6 +9,7 @@
 import Foundation
 import Metal
 import MetalKit
+import UIKit
 
 //protocol PipelineState {
 //
@@ -60,17 +61,16 @@ class MetalPipeline {
     }
     
     func image(_ texture: MTLTexture) -> CGImage {
-        
         let bytesPerPixel = 4
         let imageByteCount = texture.width * texture.height * bytesPerPixel
         let bytesPerRow = texture.width * bytesPerPixel
         var src = [UInt8](repeating: 0, count: Int(imageByteCount))
-        
+
         let region = MTLRegionMake2D(0, 0, texture.width, texture.height)
         texture.getBytes(&src, bytesPerRow: bytesPerRow, from: region, mipmapLevel: 0)
-        
+
         let bitmapInfo = CGBitmapInfo(rawValue: (CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue))
-        
+
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitsPerComponent = 8
         let context = CGContext(data: &src,
@@ -80,7 +80,7 @@ class MetalPipeline {
                                 bytesPerRow: bytesPerRow,
                                 space: colorSpace,
                                 bitmapInfo: bitmapInfo.rawValue)
-        
+
         return context!.makeImage()!
     }
     
@@ -90,17 +90,12 @@ class MetalPipeline {
         for i in 0..<count {
             processImageTextureAsync(inTexture1: inTextures[i], inTexture2: inTextures[i+1], outTexture: outTextures[i])
         }
-        //processImageTextureAsync(inTexture1: inTextures[0], inTexture2: inTextures[1], outTexture: outTextures[0])
-        //processImageTextureAsync(inTexture1: inTextures[1], inTexture2: inTextures[2], outTexture: outTextures[1])
     }
     
     func exportImages() -> [CGImage] {
         return outTextures.map({ (texture) -> CGImage in
-            self.image(texture)
+            texture.toImage()!
         })
-//        return [outTextures[0], outTextures[0]].map({ (texture) -> CGImage in
-//            self.image(texture)
-//        })
     }
     
     func processImageTexture(inTexture1: MTLTexture, inTexture2: MTLTexture, outTexture: MTLTexture) {
@@ -110,9 +105,6 @@ class MetalPipeline {
         commandEncoder.setTexture(inTexture1, index: 0)
         commandEncoder.setTexture(inTexture2, index: 1)
         commandEncoder.setTexture(outTexture, index: 2)
-        
-//        let gridSize : MTLSize = MTLSize(width: 32, height: 32, depth: 1)
-//        let threadGroupSize : MTLSize = MTLSize(width: inTexture1.width/gridSize.width, height: inTexture1.height/gridSize.height, depth: 1)
         
         let w = pipelineState!.threadExecutionWidth
         let h = pipelineState!.maxTotalThreadsPerThreadgroup / w

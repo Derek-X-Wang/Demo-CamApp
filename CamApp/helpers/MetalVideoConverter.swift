@@ -51,24 +51,6 @@ class MetalVideoConverter {
         return (intermediateFrames[0], intermediateFrames[1])
     }
     
-    func convert() {
-        print("convertToImages")
-        let t0 = CACurrentMediaTime()
-        
-        frames = retrieveFramesFromVideo()
-        let t1 = CACurrentMediaTime()
-        print("got frames \(t1-t0)")
-        
-        pipeline.importTextures(frames!)
-        let t2 = CACurrentMediaTime()
-        tempTime = t2
-        //print("textures imported \(t2-t1)")
-        
-        pipeline.process()
-        let t3 = CACurrentMediaTime()
-        print("textures processed \(t3-t2)")
-    }
-    
     func convert(_ videoFrames: [CGImage]) {
         print("convertToImages")
         frames = videoFrames
@@ -79,6 +61,56 @@ class MetalVideoConverter {
         pipeline.process()
     }
     
+    func export() -> (CGImage, CGImage) {
+        let intermediateFrames = pipeline.exportImages()
+        return (intermediateFrames[0], intermediateFrames[1])
+    }
+    
+    func convertToImagesAsync(_ completion: (CGImage, CGImage) -> Void) {
+        
+    }
+    
+    // get info about the video
+    func getDetail() {
+        let duration = videoAsset.duration
+        let durationTime = CMTimeGetSeconds(duration)
+    }
+    
+    // read video from url frame by frame
+    func retrieveFramesFromVideo(_ fps: Double=30.0) -> [CGImage] {
+        var res = [CGImage]()
+        
+        let vidLength = videoAsset.duration
+        let seconds = CMTimeGetSeconds(vidLength)
+        let requiredFramesCount = seconds * fps
+        let step = vidLength.value / Int64(requiredFramesCount)
+        
+        print("frameCount is \(requiredFramesCount)")
+        do {
+            var i: Double = 0
+            var value: Int64 = 0;
+            while i < requiredFramesCount {
+                let generator = AVAssetImageGenerator(asset: videoAsset)
+                generator.requestedTimeToleranceAfter = kCMTimeZero
+                generator.requestedTimeToleranceBefore = kCMTimeZero
+                generator.appliesPreferredTrackTransform = true
+                generator.apertureMode = AVAssetImageGeneratorApertureMode.encodedPixels
+                
+                let time = CMTime(value: value, timescale: vidLength.timescale)
+                
+                let image = try generator.copyCGImage(at: time, actualTime: nil)
+                res.append(image)
+                i += 1
+                value += step
+            }
+        } catch let error {
+            print("Error: \(error)")
+        }
+        return res
+    }
+    
+    // merge image
+    // output
     func exportSecondImage() -> UIImage {
         let intermediateFrames = pipeline.exportImages()
         let frameWidth = intermediateFrames.first!.width
@@ -114,66 +146,4 @@ class MetalVideoConverter {
         UIGraphicsEndImageContext()
         return newImage
     }
-    
-    func export() -> (CGImage, CGImage) {
-        let intermediateFrames = pipeline.exportImages()
-        return (intermediateFrames[0], intermediateFrames[1])
-    }
-    
-    func convertToImagesAsync(_ completion: (CGImage, CGImage) -> Void) {
-        
-    }
-    
-    // get info about the video
-    func getDetail() {
-        let duration = videoAsset.duration
-        let durationTime = CMTimeGetSeconds(duration)
-    }
-    // read video from url frame by frame
-//    func retrieveFrameFromVideo(_ time: Int64) -> CGImage? {
-//
-//        let generator = AVAssetImageGenerator(asset: videoAsset)
-//        generator.requestedTimeToleranceAfter = kCMTimeZero
-//        generator.requestedTimeToleranceBefore = kCMTimeZero
-//
-//        let time = CMTime(value: time, timescale: <#T##CMTimeScale#>)
-//
-//
-//    }
-    
-    func retrieveFramesFromVideo(_ fps: Double=30.0) -> [CGImage] {
-        var res = [CGImage]()
-        
-        let vidLength = videoAsset.duration
-        let seconds = CMTimeGetSeconds(vidLength)
-        let requiredFramesCount = seconds * fps
-        let step = vidLength.value / Int64(requiredFramesCount)
-        
-        print("frameCount is \(requiredFramesCount)")
-        do {
-            var i: Double = 0
-            var value: Int64 = 0;
-            while i < requiredFramesCount {
-                let generator = AVAssetImageGenerator(asset: videoAsset)
-                generator.requestedTimeToleranceAfter = kCMTimeZero
-                generator.requestedTimeToleranceBefore = kCMTimeZero
-                generator.appliesPreferredTrackTransform = true
-                generator.apertureMode = AVAssetImageGeneratorApertureMode.encodedPixels
-                
-                let time = CMTime(value: value, timescale: vidLength.timescale)
-                
-                let image = try generator.copyCGImage(at: time, actualTime: nil)
-                res.append(image)
-                i += 1
-                value += step
-            }
-        } catch let error {
-            print("Error: \(error)")
-        }
-//        let image = UIImage(cgImage: res.last!)
-//        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-        return res
-    }
-    // merge image
-    // output
 }

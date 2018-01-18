@@ -773,9 +773,14 @@ open class SwiftyCamViewController: UIViewController {
 
 	fileprivate func configurePhotoOutput() {
 		let photoFileOutput = AVCaptureStillImageOutput()
-
+        
 		if self.session.canAddOutput(photoFileOutput) {
-			photoFileOutput.outputSettings  = [AVVideoCodecKey: AVVideoCodecJPEG]
+            photoFileOutput.outputSettings  = [AVVideoCodecKey: AVVideoCodecJPEG]
+//            let previewPixelType = photoFileOutput.availableImageDataCVPixelFormatTypes.first!
+//            photoFileOutput.outputSettings  = [
+//                                               kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
+//                                               kCVPixelBufferWidthKey as String: 30,
+//                                               kCVPixelBufferHeightKey as String: 30,]
 			self.session.addOutput(photoFileOutput)
 			self.photoFileOutput = photoFileOutput
 		}
@@ -793,14 +798,99 @@ open class SwiftyCamViewController: UIViewController {
 	fileprivate func processPhoto(_ imageData: Data) -> UIImage {
 		let dataProvider = CGDataProvider(data: imageData as CFData)
 		let cgImageRef = CGImage(jpegDataProviderSource: dataProvider!, decode: nil, shouldInterpolate: true, intent: CGColorRenderingIntent.defaultIntent)
-
 		// Set proper orientation for photo
 		// If camera is currently set to front camera, flip image
 
 		let image = UIImage(cgImage: cgImageRef!, scale: 1.0, orientation: self.orientation.getImageOrientation(forCamera: self.currentCamera))
-
+        let oldData = UIImageJPEGRepresentation(image, 1.0)! as NSData
+        
+        print("original \(image.size.width):\(image.size.height) size is \(oldData.length) byte")
+        let t0 = CACurrentMediaTime()
+        let newImage = scale(image: image, toLessThan: 1334)!
+        print("time is \(CACurrentMediaTime() - t0)")
+        let newData = UIImageJPEGRepresentation(newImage, 1.0)! as NSData
+        print("new \(newImage.size.width):\(newImage.size.height) size is \(newData.length) byte")
 		return image
 	}
+    
+    private func scale(image originalImage: UIImage, toLessThan maxResolution: CGFloat) -> UIImage? {
+        guard let imageReference = originalImage.cgImage else { return nil }
+        
+        let rotate90 = CGFloat.pi/2.0 // Radians
+        let rotate180 = CGFloat.pi // Radians
+        let rotate270 = 3.0*CGFloat.pi/2.0 // Radians
+        
+        let originalWidth = CGFloat(imageReference.width)
+        let originalHeight = CGFloat(imageReference.height)
+        let originalOrientation = originalImage.imageOrientation
+        
+        var newWidth = originalWidth
+        var newHeight = originalHeight
+        
+        if originalWidth > maxResolution || originalHeight > maxResolution {
+            let aspectRatio: CGFloat = originalWidth / originalHeight
+            newWidth = aspectRatio > 1 ? maxResolution : maxResolution * aspectRatio
+            newHeight = aspectRatio > 1 ? maxResolution / aspectRatio : maxResolution
+        }
+        
+        let scaleRatio: CGFloat = newWidth / originalWidth
+        var scale: CGAffineTransform = .init(scaleX: scaleRatio, y: -scaleRatio)
+        scale = scale.translatedBy(x: 0.0, y: -originalHeight)
+        
+        var rotateAndMirror: CGAffineTransform
+        
+        switch originalOrientation {
+        case .up:
+            rotateAndMirror = .identity
+            
+        case .upMirrored:
+            rotateAndMirror = .init(translationX: originalWidth, y: 0.0)
+            rotateAndMirror = rotateAndMirror.scaledBy(x: -1.0, y: 1.0)
+            
+        case .down:
+            rotateAndMirror = .init(translationX: originalWidth, y: originalHeight)
+            rotateAndMirror = rotateAndMirror.rotated(by: rotate180 )
+            
+        case .downMirrored:
+            rotateAndMirror = .init(translationX: 0.0, y: originalHeight)
+            rotateAndMirror = rotateAndMirror.scaledBy(x: 1.0, y: -1.0)
+            
+        case .left:
+            (newWidth, newHeight) = (newHeight, newWidth)
+            rotateAndMirror = .init(translationX: 0.0, y: originalWidth)
+            rotateAndMirror = rotateAndMirror.rotated(by: rotate270)
+            scale = .init(scaleX: -scaleRatio, y: scaleRatio)
+            scale = scale.translatedBy(x: -originalHeight, y: 0.0)
+            
+        case .leftMirrored:
+            (newWidth, newHeight) = (newHeight, newWidth)
+            rotateAndMirror = .init(translationX: originalHeight, y: originalWidth)
+            rotateAndMirror = rotateAndMirror.scaledBy(x: -1.0, y: 1.0)
+            rotateAndMirror = rotateAndMirror.rotated(by: rotate270)
+            
+        case .right:
+            (newWidth, newHeight) = (newHeight, newWidth)
+            rotateAndMirror = .init(translationX: originalHeight, y: 0.0)
+            rotateAndMirror = rotateAndMirror.rotated(by: rotate90)
+            scale = .init(scaleX: -scaleRatio, y: scaleRatio)
+            scale = scale.translatedBy(x: -originalHeight, y: 0.0)
+            
+        case .rightMirrored:
+            (newWidth, newHeight) = (newHeight, newWidth)
+            rotateAndMirror = .init(scaleX: -1.0, y: 1.0)
+            rotateAndMirror = rotateAndMirror.rotated(by: CGFloat.pi/2.0)
+        }
+        
+        UIGraphicsBeginImageContext(CGSize(width: newWidth, height: newHeight))
+        guard let context = UIGraphicsGetCurrentContext() else { return nil }
+        context.concatenate(scale)
+        context.concatenate(rotateAndMirror)
+        context.draw(imageReference, in: CGRect(x: 0, y: 0, width: originalWidth, height: originalHeight))
+        let copy = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return copy
+    }
 
 	fileprivate func capturePhotoAsyncronously(completionHandler: @escaping(Bool) -> ()) {
 
@@ -813,8 +903,9 @@ open class SwiftyCamViewController: UIViewController {
 
 			photoFileOutput?.captureStillImageAsynchronously(from: videoConnection, completionHandler: {(sampleBuffer, error) in
 				if (sampleBuffer != nil) {
-					let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer!)
-					let image = self.processPhoto(imageData!)
+                    let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer!)
+
+                    let image = self.processPhoto(imageData!)
 
 					// Call delegate and return new image
 					DispatchQueue.main.async {
@@ -829,6 +920,43 @@ open class SwiftyCamViewController: UIViewController {
 			completionHandler(false)
 		}
 	}
+    
+    // kCVPixelFormatType_32BGRA to UIImage
+    // orientation is wrong
+    func imageFromSampleBuffer(sampleBuffer : CMSampleBuffer) -> UIImage {
+        // Get a CMSampleBuffer's Core Video image buffer for the media data
+        let  imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+        // Lock the base address of the pixel buffer
+        CVPixelBufferLockBaseAddress(imageBuffer!, CVPixelBufferLockFlags.readOnly);
+        
+        
+        // Get the number of bytes per row for the pixel buffer
+        let baseAddress = CVPixelBufferGetBaseAddress(imageBuffer!);
+        
+        // Get the number of bytes per row for the pixel buffer
+        let bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer!);
+        // Get the pixel buffer width and height
+        let width = CVPixelBufferGetWidth(imageBuffer!);
+        let height = CVPixelBufferGetHeight(imageBuffer!);
+        
+        // Create a device-dependent RGB color space
+        let colorSpace = CGColorSpaceCreateDeviceRGB();
+        
+        // Create a bitmap graphics context with the sample buffer data
+        var bitmapInfo: UInt32 = CGBitmapInfo.byteOrder32Little.rawValue
+        bitmapInfo |= CGImageAlphaInfo.premultipliedFirst.rawValue & CGBitmapInfo.alphaInfoMask.rawValue
+        //let bitmapInfo: UInt32 = CGBitmapInfo.alphaInfoMask.rawValue
+        let context = CGContext.init(data: baseAddress, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo)
+        // Create a Quartz image from the pixel data in the bitmap graphics context
+        let quartzImage = context?.makeImage();
+        // Unlock the pixel buffer
+        CVPixelBufferUnlockBaseAddress(imageBuffer!, CVPixelBufferLockFlags.readOnly);
+        
+        // Create an image object from the Quartz image
+        let image = UIImage.init(cgImage: quartzImage!);
+        
+        return (image);
+    }
 
 	/// Handle Denied App Privacy Settings
 

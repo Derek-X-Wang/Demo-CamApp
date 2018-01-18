@@ -24,7 +24,7 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
         shouldPrompToAppSettings = true
         cameraDelegate = self
         maximumVideoDuration = 2.0
-        videoQuality = .resolution1280x720
+        videoQuality = .high
         shouldUseDeviceOrientation = true
         allowAutoRotate = true
         audioEnabled = true
@@ -112,7 +112,8 @@ extension CameraViewController {
     }
     
     @IBAction func cameraSwitchTapped(_ sender: Any) {
-        switchCamera()
+        //switchCamera()
+        showPresets()
     }
     
     @IBAction func toggleTapped(_ sender: Any) {
@@ -125,6 +126,91 @@ extension CameraViewController {
 
 // UI Animations
 extension CameraViewController {
+    
+    func showPresets() {
+        let actionSheet = UIAlertController(title: "Choose Preset", message: "choose available", preferredStyle: .actionSheet)
+        let highAction = UIAlertAction(title: "High(default)", style: .default, handler: { action in
+            self.changePreset(.high)
+        })
+        let mediumAction = UIAlertAction(title: "Medium", style: .default, handler: { action in
+            self.changePreset(.medium)
+        })
+        let lowAction = UIAlertAction(title: "Low", style: .default, handler: { action in
+            self.changePreset(.low)
+        })
+        let resolution352x288Action = UIAlertAction(title: "resolution352x288", style: .default, handler: { action in
+            self.changePreset(.resolution352x288)
+        })
+        let resolution640x480Action = UIAlertAction(title: "resolution640x480", style: .default, handler: { action in
+            self.changePreset(.resolution640x480)
+        })
+        let resolution1280x720Action = UIAlertAction(title: "resolution1280x720", style: .default, handler: { action in
+            self.changePreset(.resolution1280x720)
+        })
+        let resolution1920x1080Action = UIAlertAction(title: "resolution1920x1080", style: .default, handler: { action in
+            self.changePreset(.resolution1920x1080)
+        })
+        let iframe960x540Action = UIAlertAction(title: "iframe960x540", style: .default, handler: { action in
+            self.changePreset(.iframe960x540)
+        })
+        let iframe1280x720Action = UIAlertAction(title: "iframe1280x720", style: .default, handler: { action in
+            self.changePreset(.iframe1280x720)
+        })
+        let resolution3840x2160Action = UIAlertAction(title: "resolution3840x2160(ios 9+)", style: .default, handler: { action in
+            self.changePreset(.resolution3840x2160)
+        })
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
+            print("cancel")
+        })
+        actionSheet.addAction(highAction)
+        actionSheet.addAction(mediumAction)
+        actionSheet.addAction(lowAction)
+        actionSheet.addAction(resolution352x288Action)
+        actionSheet.addAction(resolution640x480Action)
+        actionSheet.addAction(resolution1280x720Action)
+        actionSheet.addAction(resolution1920x1080Action)
+        actionSheet.addAction(iframe960x540Action)
+        actionSheet.addAction(iframe1280x720Action)
+        actionSheet.addAction(resolution3840x2160Action)
+        actionSheet.addAction(cancelAction)
+        self.present(actionSheet, animated: true, completion: nil)
+    }
+    
+    func changePreset(_ quality: VideoQuality) {
+        if session.canSetSessionPreset(AVCaptureSession.Preset(rawValue: videoInputPresetFromVideoQuality(quality: quality))) {
+            videoQuality = quality
+            session.sessionPreset = AVCaptureSession.Preset(rawValue: videoInputPresetFromVideoQuality(quality: quality))
+        } else {
+            let alert = UIAlertController(title: "Unsupported Preset", message: "Please try another preset", preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "Ok", style: .default, handler: { action in
+                print("okay")
+            })
+            alert.addAction(okAction)
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    fileprivate func videoInputPresetFromVideoQuality(quality: VideoQuality) -> String {
+        switch quality {
+        case .high: return AVCaptureSession.Preset.high.rawValue
+        case .medium: return AVCaptureSession.Preset.medium.rawValue
+        case .low: return AVCaptureSession.Preset.low.rawValue
+        case .resolution352x288: return AVCaptureSession.Preset.cif352x288.rawValue
+        case .resolution640x480: return AVCaptureSession.Preset.vga640x480.rawValue
+        case .resolution1280x720: return AVCaptureSession.Preset.hd1280x720.rawValue
+        case .resolution1920x1080: return AVCaptureSession.Preset.hd1920x1080.rawValue
+        case .iframe960x540: return AVCaptureSession.Preset.iFrame960x540.rawValue
+        case .iframe1280x720: return AVCaptureSession.Preset.iFrame1280x720.rawValue
+        case .resolution3840x2160:
+            if #available(iOS 9.0, *) {
+                return AVCaptureSession.Preset.hd4K3840x2160.rawValue
+            }
+            else {
+                print("[SwiftyCam]: Resolution 3840x2160 not supported")
+                return AVCaptureSession.Preset.high.rawValue
+            }
+        }
+    }
     
     @objc func toggleControl(notification: Notification) {
         if captureButton.isHidden {

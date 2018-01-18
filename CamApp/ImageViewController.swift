@@ -41,6 +41,11 @@ class ImageViewController: UIViewController {
         deleteButton.setImage(#imageLiteral(resourceName: "icons8-waste-100"), for: UIControlState())
         deleteButton.addTarget(self, action: #selector(remove), for: .touchUpInside)
         view.addSubview(deleteButton)
+        
+        let infoButton = UIButton(frame: CGRect(x: view.frame.width - 40, y: 50, width: 30.0, height: 30.0))
+        infoButton.setImage(#imageLiteral(resourceName: "icons8-about-filled-100"), for: UIControlState())
+        infoButton.addTarget(self, action: #selector(info), for: .touchUpInside)
+        view.addSubview(infoButton)
     }
     
     override var prefersStatusBarHidden: Bool {
@@ -49,6 +54,15 @@ class ImageViewController: UIViewController {
     
     @objc func cancel() {
         dismiss(animated: true, completion: nil)
+    }
+    
+    @objc func info() {
+        let displayedImageData = UIImageJPEGRepresentation(displayedImage, 1.0)! as NSData
+        let msg = "\(displayedImage.size.width):\(displayedImage.size.height)\n\(displayedImageData.length) byte"
+        let alert = UIAlertController(title: "Info", message: msg, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "ok", style: .default, handler: nil)
+        alert.addAction(okAction)
+        self.present(alert, animated: true, completion: nil)
     }
     
     @objc func remove() {

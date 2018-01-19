@@ -23,7 +23,7 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
         super.viewDidLoad()
         shouldPrompToAppSettings = true
         cameraDelegate = self
-        maximumVideoDuration = 2.0
+        maximumVideoDuration = 60.0
         videoQuality = .high
         shouldUseDeviceOrientation = true
         allowAutoRotate = true
@@ -82,7 +82,29 @@ extension CameraViewController {
     
     func swiftyCam(_ swiftyCam: SwiftyCamViewController, didFinishProcessVideoAt url: URL) {
         print("video taked")
-        FirebaseUploadStream.send(FirebaseUpload(url))
+        guard let data = NSData(contentsOf: url as URL) else { return }
+        print("File size before compression: \(Double(data.length) / Double(1048576)) mb")
+        let compressedURL = NSURL.fileURL(withPath: NSTemporaryDirectory() + UUID().uuidString + "-compressed.mov")
+        compressVideo(inputURL: url as URL, outputURL: compressedURL) { (exportSession) in
+            guard let session = exportSession else { return }
+            switch session.status {
+            case .unknown:
+                break
+            case .waiting:
+                break
+            case .exporting:
+                break
+            case .completed:
+                guard let compressedData = NSData(contentsOf: compressedURL) else { return }
+                print("File size after compression: \(Double(compressedData.length) / Double(1048576)) mb")
+                FirebaseUploadStream.send(FirebaseUpload(compressedURL))
+            case .failed:
+                break
+            case .cancelled:
+                break
+            }
+        }
+        
     }
     
     func swiftyCam(_ swiftyCam: SwiftyCamViewController, didFocusAtPoint point: CGPoint) {
@@ -121,6 +143,21 @@ extension CameraViewController {
         NotificationCenter.default.post(name: notificationName, object: self,
                                         userInfo: [:])
         toggleThumbnailsViewAnimation()
+    }
+    
+    func compressVideo(inputURL: URL, outputURL: URL, handler: @escaping (_ exportSession: AVAssetExportSession?)-> Void) {
+        let urlAsset = AVURLAsset(url: inputURL, options: nil)
+        guard let exportSession = AVAssetExportSession(asset: urlAsset, presetName: AVAssetExportPreset1280x720) else {
+            handler(nil)
+            return
+        }
+        
+        exportSession.outputURL = outputURL
+        exportSession.outputFileType = AVFileType.mov
+        exportSession.shouldOptimizeForNetworkUse = true
+        exportSession.exportAsynchronously { () -> Void in
+            handler(exportSession)
+        }
     }
 }
 

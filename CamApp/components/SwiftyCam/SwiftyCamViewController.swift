@@ -802,16 +802,26 @@ open class SwiftyCamViewController: UIViewController {
 		// If camera is currently set to front camera, flip image
 
 		let image = UIImage(cgImage: cgImageRef!, scale: 1.0, orientation: self.orientation.getImageOrientation(forCamera: self.currentCamera))
-        let oldData = UIImageJPEGRepresentation(image, 1.0)! as NSData
-        
-        print("original \(image.size.width):\(image.size.height) size is \(oldData.length) byte")
-        let t0 = CACurrentMediaTime()
-        let newImage = scale(image: image, toLessThan: 1334)!
-        print("time is \(CACurrentMediaTime() - t0)")
-        let newData = UIImageJPEGRepresentation(newImage, 1.0)! as NSData
-        print("new \(newImage.size.width):\(newImage.size.height) size is \(newData.length) byte")
+        print("=====Levels of JPEG Compression=====")
+        saveAndPrint(image, scale: 1.0, save: true)
+        saveAndPrint(image, scale: 0.9, save: true)
+        saveAndPrint(image, scale: 0.8, save: false)
+        saveAndPrint(image, scale: 0.7, save: false)
+        saveAndPrint(image, scale: 0.6, save: false)
+        saveAndPrint(image, scale: 0.5, save: true)
+        saveAndPrint(image, scale: 0.4, save: true)
+        saveAndPrint(image, scale: 0.3, save: true)
 		return image
 	}
+    
+    func saveAndPrint(_ image: UIImage, scale: CGFloat, save: Bool) {
+        let data = UIImageJPEGRepresentation(image, scale)!
+        let newData = data as NSData
+        print("\(scale) compression size is \(newData.length) byte")
+        if save {
+            UIImageWriteToSavedPhotosAlbum(UIImage(data: data)!, nil, nil, nil)
+        }
+    }
     
     private func scale(image originalImage: UIImage, toLessThan maxResolution: CGFloat) -> UIImage? {
         guard let imageReference = originalImage.cgImage else { return nil }

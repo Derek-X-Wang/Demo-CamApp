@@ -103,14 +103,27 @@
                                     <action selector="cameraSwitchTapped:" destination="mxv-K3-lOv" eventType="touchUpInside" id="ptn-FY-pGF"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kSc-j6-SJz">
+                                <rect key="frame" x="175" y="28" width="25" height="25"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="25" id="1un-kw-oSa"/>
+                                    <constraint firstAttribute="height" constant="25" id="fep-t6-lyP"/>
+                                </constraints>
+                                <state key="normal" image="icons8-sun-100"/>
+                                <connections>
+                                    <action selector="liveButtonTapped:" destination="mxv-K3-lOv" eventType="touchUpInside" id="wWx-1h-4w5"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="tyx-fh-NwH" firstAttribute="centerY" secondItem="zJL-5P-iuJ" secondAttribute="centerY" id="13L-g6-39Q"/>
+                            <constraint firstItem="kSc-j6-SJz" firstAttribute="top" secondItem="ghs-gt-zKJ" secondAttribute="top" constant="8" id="75s-lo-u47"/>
                             <constraint firstAttribute="bottomMargin" secondItem="zJL-5P-iuJ" secondAttribute="bottom" constant="20" id="I9W-0e-p5F"/>
                             <constraint firstItem="ES6-8m-TCf" firstAttribute="centerY" secondItem="zJL-5P-iuJ" secondAttribute="centerY" id="LvM-sh-mTv"/>
                             <constraint firstItem="zJL-5P-iuJ" firstAttribute="leading" secondItem="ES6-8m-TCf" secondAttribute="trailing" constant="50" id="OMq-WU-XZt"/>
                             <constraint firstItem="tyx-fh-NwH" firstAttribute="leading" secondItem="zJL-5P-iuJ" secondAttribute="trailing" constant="50" id="XIo-f0-65q"/>
+                            <constraint firstItem="kSc-j6-SJz" firstAttribute="centerX" secondItem="64s-Yp-Vy3" secondAttribute="centerX" id="o1A-7I-ytL"/>
                             <constraint firstItem="zJL-5P-iuJ" firstAttribute="centerX" secondItem="64s-Yp-Vy3" secondAttribute="centerX" id="rlo-ua-VpS"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="ghs-gt-zKJ"/>
@@ -118,6 +131,7 @@
                     <connections>
                         <outlet property="captureButton" destination="zJL-5P-iuJ" id="eYY-wo-8rK"/>
                         <outlet property="flipCameraButton" destination="tyx-fh-NwH" id="vfT-Ff-nxJ"/>
+                        <outlet property="liveButton" destination="kSc-j6-SJz" id="InT-Un-YEl"/>
                         <outlet property="toggleButton" destination="ES6-8m-TCf" id="sjC-ld-2xb"/>
                     </connections>
                 </viewController>
@@ -129,5 +143,6 @@
     <resources>
         <image name="icons8-menu-filled-100" width="33" height="33"/>
         <image name="icons8-sort-down-filled-100" width="33" height="33"/>
+        <image name="icons8-sun-100" width="33" height="33"/>
     </resources>
 </document>

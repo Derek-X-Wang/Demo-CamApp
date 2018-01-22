@@ -23,7 +23,17 @@ class FirebaseFileChange {
     init(_ entry: [String : AnyObject], key: String) {
         fileId = key
         let entryType = entry["type"] as! String
-        type = entryType == "image" ? .image : .video
+        switch entryType {
+        case "image":
+            type = .image
+        case "video":
+            type = .video
+        case "live":
+            type = .live
+        default:
+            print("Error: unknown type")
+            type = .video
+        }
         name = entry["name"] as! String
         path = entry["path"] as! String
         uploadDevice = entry["uploadDevice"] as! String

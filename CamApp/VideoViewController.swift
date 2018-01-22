@@ -101,22 +101,31 @@ class VideoViewController: UIViewController {
     }
     
     @objc func createImages() {
-        DispatchQueue.global().async {
-            let frames = self.converter.retrieveFramesFromVideo()
-            DispatchQueue.main.async {
-                let alert = UIAlertController(title: "Ready to create", message: "Click ok to start the process", preferredStyle: .alert)
-                let okAction = UIAlertAction(title: "ok", style: .default, handler: { (action) in
-                    DispatchQueue.global().async {
-                        self.converter.convert(frames)
-                    }
-                })
+        let duration = AVURLAsset(url: videoURL).duration.seconds
+        if duration < 2 {
+            DispatchQueue.global().async {
+                let frames = self.converter.retrieveFramesFromVideo()
+                DispatchQueue.main.async {
+                    let alert = UIAlertController(title: "Ready to create", message: "Click ok to start the process", preferredStyle: .alert)
+                    let okAction = UIAlertAction(title: "ok", style: .default, handler: { (action) in
+                        DispatchQueue.global().async {
+                            self.converter.convert(frames)
+                        }
+                    })
                     //UIAlertAction(title: "ok", style: .default, handler: nil)
-                alert.addAction(okAction)
-                self.present(alert, animated: true, completion: nil)
+                    alert.addAction(okAction)
+                    self.present(alert, animated: true, completion: nil)
+                }
             }
-            
+        } else {
+            let alert = UIAlertController(title: "Video too large", message: "Please use a video less than 2 seconds", preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "ok", style: .default, handler: { (action) in
+            })
+            //UIAlertAction(title: "ok", style: .default, handler: nil)
+            alert.addAction(okAction)
+            self.present(alert, animated: true, completion: nil)
         }
-        
+
 //        let (first, second) = converter.convertToImages()
 //        let image1 = UIImage(cgImage: first)
 //        let image2 = UIImage(cgImage: second)

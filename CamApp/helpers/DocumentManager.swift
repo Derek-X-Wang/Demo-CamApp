@@ -54,9 +54,26 @@ class DocumentManager {
         try data.write(to: URL(fileURLWithPath: filePath))
     }
     
+    func save(_ image: UIImage, name: String, metadata: NSMutableDictionary) {
+        let filePath = getPath(name)
+        let url = URL(fileURLWithPath: filePath)
+        let data = UIImageJPEGRepresentation(image, 1)!
+        let source = CGImageSourceCreateWithData(data as CFData, nil)
+        let uniformTypeIdentifier = CGImageSourceGetType(source!)
+        let destination = CGImageDestinationCreateWithURL(url as CFURL, uniformTypeIdentifier!, 1, nil)
+        CGImageDestinationAddImageFromSource(destination!, source!, 0, metadata)
+        CGImageDestinationFinalize(destination!)
+    }
+    
     func save(_ url: URL, name: String) throws {
+        print("h1")
         let toUrl = getPath(name)
-        try manager.moveItem(atPath: url.path, toPath: toUrl)
+        print("h2")
+        // use copy not move, since we will use tmp/video for upload
+        // new copy for loading when relaunch the app
+        try manager.copyItem(atPath: url.path, toPath: toUrl)
+        //try manager.moveItem(atPath: url.path, toPath: toUrl)
+        print("h3")
     }
     
     func exited(_ name: String) -> Bool {

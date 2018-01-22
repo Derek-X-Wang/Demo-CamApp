@@ -90,7 +90,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     fileprivate func setupSubscription() {
         // update thumbnailsView after taking a photo or video
         FirebaseUploadStream
-            .asObservable(.newUploadStream)
+            .asObservable(.preparedUploadStream)
             .observeOn(MainScheduler.instance)
             .subscribe { (event) in
                 switch event {
@@ -105,6 +105,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                     } catch let e {
                         print("Save error \(e.localizedDescription)")
                     }
+                    //print("newUploadStream")
                 case .completed:
                     print("FirebaseUpload Stream Completed")
                 }
@@ -188,6 +189,16 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 case .next(let fileChange):
                     do {
                         try DocumentManager.shared.remove(fileChange.name)
+                        if fileChange.type == .live {
+                            let imageName = "\(fileChange.timestamp).live.jpg"
+                            let videoName = "\(fileChange.timestamp).live.mov"
+                            if DocumentManager.shared.exited(imageName) {
+                                try DocumentManager.shared.remove(imageName)
+                            }
+                            if DocumentManager.shared.exited(videoName) {
+                                try DocumentManager.shared.remove(videoName)
+                            }
+                        }
                         self.thumbnails = self.thumbnails.filter({ (thumbnail) -> Bool in
                             if thumbnail.timestamp == fileChange.timestamp {
                                 return false
@@ -226,7 +237,15 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             .child(file.uid!)
             .child("files")
             .child(file.fileId)
-        let type = file.type == .image ? "image" : "video"
+        var type: String
+        switch file.type {
+        case .image:
+            type = "image"
+        case .video:
+            type = "video"
+        case .live:
+            type = "live"
+        }
         let path = file.metadata!.path!
         let url = file.metadata!.downloadURL()?.absoluteString
         let filedata = ["type": type,
@@ -298,12 +317,16 @@ extension ViewController {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! ThumbnailCollectionViewCell
-        print(cell.thumbnail)
-        if cell.thumbnail!.type == .image {
+        // print(cell.thumbnail)
+        switch cell.thumbnail!.type {
+        case .image:
             let vc = ImageViewController(cell.thumbnail!)
             self.present(vc, animated: true, completion: nil)
-        } else {
+        case .video:
             let vc = VideoViewController(cell.thumbnail!)
+            self.present(vc, animated: true, completion: nil)
+        case .live:
+            let vc = LivePhotoViewController(cell.thumbnail!)
             self.present(vc, animated: true, completion: nil)
         }
     }

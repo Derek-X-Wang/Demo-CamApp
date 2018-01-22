@@ -14,6 +14,11 @@ class CameraViewController: SwiftyCamViewController, SwiftyCamViewControllerDele
     @IBOutlet weak var captureButton: SwiftyRecordButton!
     @IBOutlet weak var flipCameraButton: UIButton!
     @IBOutlet weak var toggleButton: UIButton!
+    @IBOutlet weak var liveButton: UIButton!
+    
+    fileprivate let kKeyContentIdentifier =  "com.apple.quicktime.content.identifier"
+    fileprivate let kKeyStillImageTime = "com.apple.quicktime.still-image-time"
+    fileprivate let kKeySpaceQuickTimeMetadata = "mdta"
     
     var vc: ViewController?
     var isThumbnailsViewShowed = true
@@ -82,29 +87,57 @@ extension CameraViewController {
     
     func swiftyCam(_ swiftyCam: SwiftyCamViewController, didFinishProcessVideoAt url: URL) {
         print("video taked")
-        guard let data = NSData(contentsOf: url as URL) else { return }
-        print("File size before compression: \(Double(data.length) / Double(1048576)) mb")
-        let compressedURL = NSURL.fileURL(withPath: NSTemporaryDirectory() + UUID().uuidString + "-compressed.mov")
-        compressVideo(inputURL: url as URL, outputURL: compressedURL) { (exportSession) in
-            guard let session = exportSession else { return }
-            switch session.status {
-            case .unknown:
-                break
-            case .waiting:
-                break
-            case .exporting:
-                break
-            case .completed:
-                guard let compressedData = NSData(contentsOf: compressedURL) else { return }
-                print("File size after compression: \(Double(compressedData.length) / Double(1048576)) mb")
-                FirebaseUploadStream.send(FirebaseUpload(compressedURL))
-            case .failed:
-                break
-            case .cancelled:
-                break
-            }
-        }
+        FirebaseUploadStream.send(FirebaseUpload(url, type: .video))
+//        guard let data = NSData(contentsOf: url as URL) else { return }
+//        print("File size before compression: \(Double(data.length) / Double(1048576)) mb")
+//        let compressedURL = NSURL.fileURL(withPath: NSTemporaryDirectory() + UUID().uuidString + "-compressed.mov")
+//        compressVideo(inputURL: url as URL, outputURL: compressedURL) { (exportSession) in
+//            guard let session = exportSession else { return }
+//            switch session.status {
+//            case .unknown:
+//                break
+//            case .waiting:
+//                break
+//            case .exporting:
+//                break
+//            case .completed:
+//                guard let compressedData = NSData(contentsOf: compressedURL) else { return }
+//                print("File size after compression: \(Double(compressedData.length) / Double(1048576)) mb")
+//                FirebaseUploadStream.send(FirebaseUpload(compressedURL, type: .video))
+//            case .failed:
+//                break
+//            case .cancelled:
+//                break
+//            }
+//        }
         
+    }
+    
+    func swiftyCam(_ swiftyCam: SwiftyCamViewController, didFinishProcessLivePhotoAt url: URL) {
+        print("live photo taked")
+        FirebaseUploadStream.send(FirebaseUpload(url, type: .live))
+//        guard let data = NSData(contentsOf: url as URL) else { return }
+//        print("File size before compression: \(Double(data.length) / Double(1048576)) mb")
+//        let compressedURL = NSURL.fileURL(withPath: NSTemporaryDirectory() + UUID().uuidString + "-compressed.mov")
+//        compressVideo(inputURL: url as URL, outputURL: compressedURL) { (exportSession) in
+//            guard let session = exportSession else { return }
+//            switch session.status {
+//            case .unknown:
+//                break
+//            case .waiting:
+//                break
+//            case .exporting:
+//                break
+//            case .completed:
+//                guard let compressedData = NSData(contentsOf: compressedURL) else { return }
+//                print("File size after compression: \(Double(compressedData.length) / Double(1048576)) mb")
+//                FirebaseUploadStream.send(FirebaseUpload(compressedURL, type: .live))
+//            case .failed:
+//                break
+//            case .cancelled:
+//                break
+//            }
+//        }
     }
     
     func swiftyCam(_ swiftyCam: SwiftyCamViewController, didFocusAtPoint point: CGPoint) {
@@ -151,12 +184,41 @@ extension CameraViewController {
             handler(nil)
             return
         }
-        
+        let outfileName = outputURL.lastPathComponent
+        let uuid = outfileName.replacingOccurrences(of: "-compressed.mov", with: "")
         exportSession.outputURL = outputURL
         exportSession.outputFileType = AVFileType.mov
+        exportSession.metadata = [metadataFor(uuid)]
         exportSession.shouldOptimizeForNetworkUse = true
         exportSession.exportAsynchronously { () -> Void in
             handler(exportSession)
+        }
+    }
+    
+    fileprivate func metadataFor(_ assetIdentifier: String) -> AVMetadataItem {
+        let item = AVMutableMetadataItem()
+        item.key = kKeyContentIdentifier as (NSCopying & NSObjectProtocol)?
+        item.keySpace = AVMetadataKeySpace.quickTimeMetadata
+        item.value = assetIdentifier as (NSCopying & NSObjectProtocol)?
+        item.dataType = "com.apple.metadata.datatype.UTF-8"
+        return item
+    }
+    
+    fileprivate func metadataForStillImageTime() -> AVMetadataItem {
+        let item = AVMutableMetadataItem()
+        item.key = kKeyStillImageTime as (NSCopying & NSObjectProtocol)?
+        item.keySpace = AVMetadataKeySpace.quickTimeMetadata
+        item.value = 0 as (NSCopying & NSObjectProtocol)?
+        item.dataType = "com.apple.metadata.datatype.int8"
+        return item
+    }
+    
+    @IBAction func liveButtonTapped(_ sender: Any) {
+        isLive = !isLive
+        if isLive {
+            liveButton.setImage(#imageLiteral(resourceName: "icons8-sun-100-yellow"), for: .normal)
+        } else {
+            liveButton.setImage(#imageLiteral(resourceName: "icons8-sun-100"), for: .normal)
         }
     }
 }

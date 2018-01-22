@@ -260,6 +260,12 @@ open class SwiftyCamViewController: UIViewController {
 	override open var shouldAutorotate: Bool {
 		return allowAutoRotate
 	}
+    
+    /// Sets whether or not taking live photo
+    
+    public var isLive                           = false
+    
+    public var isLivePhotoCapturing             = false
 
 	// MARK: ViewDidLoad
 
@@ -444,44 +450,47 @@ open class SwiftyCamViewController: UIViewController {
 
 	public func takePhoto() {
         
-        startVideoRecording()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.stopVideoRecording()
+        if isLive {
+            isLivePhotoCapturing = true
+            startVideoRecording()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.stopVideoRecording()
+            }
+        } else {
+            guard let device = videoDevice else {
+                return
+            }
+            
+            
+            if device.hasFlash == true && flashEnabled == true /* TODO: Add Support for Retina Flash and add front flash */ {
+                changeFlashSettings(device: device, mode: .on)
+                capturePhotoAsyncronously(completionHandler: { (_) in })
+                
+            } else if device.hasFlash == false && flashEnabled == true && currentCamera == .front {
+                flashView = UIView(frame: view.frame)
+                flashView?.alpha = 0.0
+                flashView?.backgroundColor = UIColor.white
+                previewLayer.addSubview(flashView!)
+                
+                UIView.animate(withDuration: 0.1, delay: 0.0, options: .curveEaseInOut, animations: {
+                    self.flashView?.alpha = 1.0
+                    
+                }, completion: { (_) in
+                    self.capturePhotoAsyncronously(completionHandler: { (success) in
+                        UIView.animate(withDuration: 0.1, delay: 0.0, options: .curveEaseInOut, animations: {
+                            self.flashView?.alpha = 0.0
+                        }, completion: { (_) in
+                            self.flashView?.removeFromSuperview()
+                        })
+                    })
+                })
+            } else {
+                if device.isFlashActive == true {
+                    changeFlashSettings(device: device, mode: .off)
+                }
+                capturePhotoAsyncronously(completionHandler: { (_) in })
+            }
         }
-
-//        guard let device = videoDevice else {
-//            return
-//        }
-//
-//
-//        if device.hasFlash == true && flashEnabled == true /* TODO: Add Support for Retina Flash and add front flash */ {
-//            changeFlashSettings(device: device, mode: .on)
-//            capturePhotoAsyncronously(completionHandler: { (_) in })
-//
-//        } else if device.hasFlash == false && flashEnabled == true && currentCamera == .front {
-//            flashView = UIView(frame: view.frame)
-//            flashView?.alpha = 0.0
-//            flashView?.backgroundColor = UIColor.white
-//            previewLayer.addSubview(flashView!)
-//
-//            UIView.animate(withDuration: 0.1, delay: 0.0, options: .curveEaseInOut, animations: {
-//                self.flashView?.alpha = 1.0
-//
-//            }, completion: { (_) in
-//                self.capturePhotoAsyncronously(completionHandler: { (success) in
-//                    UIView.animate(withDuration: 0.1, delay: 0.0, options: .curveEaseInOut, animations: {
-//                        self.flashView?.alpha = 0.0
-//                    }, completion: { (_) in
-//                        self.flashView?.removeFromSuperview()
-//                    })
-//                })
-//            })
-//        } else {
-//            if device.isFlashActive == true {
-//                changeFlashSettings(device: device, mode: .off)
-//            }
-//            capturePhotoAsyncronously(completionHandler: { (_) in })
-//        }
 	}
 
 	/**
@@ -807,15 +816,15 @@ open class SwiftyCamViewController: UIViewController {
 		// If camera is currently set to front camera, flip image
 
 		let image = UIImage(cgImage: cgImageRef!, scale: 1.0, orientation: self.orientation.getImageOrientation(forCamera: self.currentCamera))
-        print("=====Levels of JPEG Compression=====")
-        saveAndPrint(image, scale: 1.0, save: true)
-        saveAndPrint(image, scale: 0.9, save: true)
-        saveAndPrint(image, scale: 0.8, save: false)
-        saveAndPrint(image, scale: 0.7, save: false)
-        saveAndPrint(image, scale: 0.6, save: false)
-        saveAndPrint(image, scale: 0.5, save: true)
-        saveAndPrint(image, scale: 0.4, save: true)
-        saveAndPrint(image, scale: 0.3, save: true)
+//        print("=====Levels of JPEG Compression=====")
+//        saveAndPrint(image, scale: 1.0, save: true)
+//        saveAndPrint(image, scale: 0.9, save: true)
+//        saveAndPrint(image, scale: 0.8, save: false)
+//        saveAndPrint(image, scale: 0.7, save: false)
+//        saveAndPrint(image, scale: 0.6, save: false)
+//        saveAndPrint(image, scale: 0.5, save: true)
+//        saveAndPrint(image, scale: 0.4, save: true)
+//        saveAndPrint(image, scale: 0.3, save: true)
 		return image
 	}
     
@@ -826,85 +835,6 @@ open class SwiftyCamViewController: UIViewController {
         if save {
             UIImageWriteToSavedPhotosAlbum(UIImage(data: data)!, nil, nil, nil)
         }
-    }
-    
-    private func scale(image originalImage: UIImage, toLessThan maxResolution: CGFloat) -> UIImage? {
-        guard let imageReference = originalImage.cgImage else { return nil }
-        
-        let rotate90 = CGFloat.pi/2.0 // Radians
-        let rotate180 = CGFloat.pi // Radians
-        let rotate270 = 3.0*CGFloat.pi/2.0 // Radians
-        
-        let originalWidth = CGFloat(imageReference.width)
-        let originalHeight = CGFloat(imageReference.height)
-        let originalOrientation = originalImage.imageOrientation
-        
-        var newWidth = originalWidth
-        var newHeight = originalHeight
-        
-        if originalWidth > maxResolution || originalHeight > maxResolution {
-            let aspectRatio: CGFloat = originalWidth / originalHeight
-            newWidth = aspectRatio > 1 ? maxResolution : maxResolution * aspectRatio
-            newHeight = aspectRatio > 1 ? maxResolution / aspectRatio : maxResolution
-        }
-        
-        let scaleRatio: CGFloat = newWidth / originalWidth
-        var scale: CGAffineTransform = .init(scaleX: scaleRatio, y: -scaleRatio)
-        scale = scale.translatedBy(x: 0.0, y: -originalHeight)
-        
-        var rotateAndMirror: CGAffineTransform
-        
-        switch originalOrientation {
-        case .up:
-            rotateAndMirror = .identity
-            
-        case .upMirrored:
-            rotateAndMirror = .init(translationX: originalWidth, y: 0.0)
-            rotateAndMirror = rotateAndMirror.scaledBy(x: -1.0, y: 1.0)
-            
-        case .down:
-            rotateAndMirror = .init(translationX: originalWidth, y: originalHeight)
-            rotateAndMirror = rotateAndMirror.rotated(by: rotate180 )
-            
-        case .downMirrored:
-            rotateAndMirror = .init(translationX: 0.0, y: originalHeight)
-            rotateAndMirror = rotateAndMirror.scaledBy(x: 1.0, y: -1.0)
-            
-        case .left:
-            (newWidth, newHeight) = (newHeight, newWidth)
-            rotateAndMirror = .init(translationX: 0.0, y: originalWidth)
-            rotateAndMirror = rotateAndMirror.rotated(by: rotate270)
-            scale = .init(scaleX: -scaleRatio, y: scaleRatio)
-            scale = scale.translatedBy(x: -originalHeight, y: 0.0)
-            
-        case .leftMirrored:
-            (newWidth, newHeight) = (newHeight, newWidth)
-            rotateAndMirror = .init(translationX: originalHeight, y: originalWidth)
-            rotateAndMirror = rotateAndMirror.scaledBy(x: -1.0, y: 1.0)
-            rotateAndMirror = rotateAndMirror.rotated(by: rotate270)
-            
-        case .right:
-            (newWidth, newHeight) = (newHeight, newWidth)
-            rotateAndMirror = .init(translationX: originalHeight, y: 0.0)
-            rotateAndMirror = rotateAndMirror.rotated(by: rotate90)
-            scale = .init(scaleX: -scaleRatio, y: scaleRatio)
-            scale = scale.translatedBy(x: -originalHeight, y: 0.0)
-            
-        case .rightMirrored:
-            (newWidth, newHeight) = (newHeight, newWidth)
-            rotateAndMirror = .init(scaleX: -1.0, y: 1.0)
-            rotateAndMirror = rotateAndMirror.rotated(by: CGFloat.pi/2.0)
-        }
-        
-        UIGraphicsBeginImageContext(CGSize(width: newWidth, height: newHeight))
-        guard let context = UIGraphicsGetCurrentContext() else { return nil }
-        context.concatenate(scale)
-        context.concatenate(rotateAndMirror)
-        context.draw(imageReference, in: CGRect(x: 0, y: 0, width: originalWidth, height: originalHeight))
-        let copy = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return copy
     }
 
 	fileprivate func capturePhotoAsyncronously(completionHandler: @escaping(Bool) -> ()) {
@@ -1212,7 +1142,12 @@ extension SwiftyCamViewController : AVCaptureFileOutputRecordingDelegate {
         } else {
             //Call delegate function with the URL of the outputfile
             DispatchQueue.main.async {
-                self.cameraDelegate?.swiftyCam(self, didFinishProcessVideoAt: outputFileURL)
+                if self.isLivePhotoCapturing {
+                    self.isLivePhotoCapturing = !self.isLivePhotoCapturing
+                    self.cameraDelegate?.swiftyCam(self, didFinishProcessLivePhotoAt: outputFileURL)
+                } else {
+                    self.cameraDelegate?.swiftyCam(self, didFinishProcessVideoAt: outputFileURL)
+                }
             }
         }
     }

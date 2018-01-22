@@ -77,6 +77,15 @@ public protocol SwiftyCamViewControllerDelegate: class {
     
     func swiftyCam(_ swiftyCam: SwiftyCamViewController, didFinishProcessVideoAt url: URL)
     
+    /**
+     SwiftyCamViewControllerDelegate function called when SwiftyCamViewController is done processing live photo.
+     
+     - Parameter swiftyCam: Current SwiftyCamViewController session
+     - Parameter url: URL location of live photo in temporary directory
+     */
+    
+    func swiftyCam(_ swiftyCam: SwiftyCamViewController, didFinishProcessLivePhotoAt url: URL)
+    
     
     /**
      SwiftyCamViewControllerDelegate function called when SwiftyCamViewController fails to record a video.

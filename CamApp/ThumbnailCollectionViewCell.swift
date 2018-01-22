@@ -14,6 +14,7 @@ import NVActivityIndicatorView
 enum FileType {
     case image
     case video
+    case live
 }
 
 enum ThumbnailViewStatus {
@@ -61,31 +62,19 @@ class ThumbnailCollectionViewCell: UICollectionViewCell {
     var thumbnail: Thumbnail? {
         didSet {
             playImageView.isHidden = true
-            if thumbnail?.type == .image {
+            liveImageView.isHidden = true
+            switch thumbnail!.type {
+            case .image:
                 thumbnailImageView.image = thumbnail?.image
-            } else {
+            case .video:
                 playImageView.isHidden = false
-                let image = getThumbnail(thumbnail!.videoURL!)
+                let image = getThumbnail(thumbnail!.videoURL!, timeScale: 3.0)
+                thumbnailImageView.image = image
+            case .live:
+                liveImageView.isHidden = false
+                let image = getThumbnail(thumbnail!.videoURL!, timeScale: 2.0)
                 thumbnailImageView.image = image
             }
-        }
-    }
-    
-    func getThumbnail(_ url: URL) -> UIImage {
-        let asset:AVAsset = AVAsset(url:url)
-        let durationSeconds = CMTimeGetSeconds(asset.duration)
-        let assetImgGenerate : AVAssetImageGenerator = AVAssetImageGenerator(asset: asset)
-        
-        assetImgGenerate.appliesPreferredTrackTransform = true
-        let time: CMTime = CMTimeMakeWithSeconds(durationSeconds/3.0, 600)
-        var img: CGImage
-        do {
-            img = try assetImgGenerate.copyCGImage(at: time, actualTime: nil)
-            let frameImg: UIImage = UIImage(cgImage: img)
-            return frameImg
-        } catch let error as NSError {
-            print("ERROR: \(error)")
-            return UIImage.from(color: .white)
         }
     }
     
@@ -102,6 +91,14 @@ class ThumbnailCollectionViewCell: UICollectionViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
         imageView.image = #imageLiteral(resourceName: "icons8-play-button-circled-filled-100")
+        return imageView
+    }()
+    
+    let liveImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = #imageLiteral(resourceName: "icons8-sun-100-yellow")
         return imageView
     }()
     
@@ -126,6 +123,12 @@ class ThumbnailCollectionViewCell: UICollectionViewCell {
         playImageView.centerYAnchor.constraint(equalTo: thumbnailImageView.centerYAnchor).isActive = true
         playImageView.widthAnchor.constraint(equalToConstant: 50).isActive = true
         playImageView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        thumbnailImageView.addSubview(liveImageView)
+        liveImageView.centerXAnchor.constraint(equalTo: thumbnailImageView.centerXAnchor).isActive = true
+        liveImageView.centerYAnchor.constraint(equalTo: thumbnailImageView.centerYAnchor).isActive = true
+        liveImageView.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        liveImageView.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
     }
 }

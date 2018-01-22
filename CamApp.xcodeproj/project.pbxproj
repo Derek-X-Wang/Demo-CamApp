@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		583ED8A92011D54F004F2415 /* LivePhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583ED8A82011D54F004F2415 /* LivePhotoViewController.swift */; };
+		583ED8AB20128607004F2415 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583ED8AA20128607004F2415 /* Helpers.swift */; };
+		583ED8AF20131F2E004F2415 /* JPEG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583ED8AD20131F2E004F2415 /* JPEG.swift */; };
+		583ED8B020131F2E004F2415 /* QuickTimeMov.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583ED8AE20131F2E004F2415 /* QuickTimeMov.swift */; };
 		58C20F041FFF5043007B42BD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 58C20F031FFF5042007B42BD /* GoogleService-Info.plist */; };
 		58C20F09200032BF007B42BD /* FirebaseFileChangeStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C20F08200032BF007B42BD /* FirebaseFileChangeStream.swift */; };
 		58C20F0B2000333A007B42BD /* FirebaseUploadStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C20F0A2000333A007B42BD /* FirebaseUploadStream.swift */; };
@@ -56,6 +60,10 @@
 
 /* Begin PBXFileReference section */
 		40F1E6A4B7F27EC708472EC3 /* Pods-CamAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CamAppTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CamAppTests/Pods-CamAppTests.debug.xcconfig"; sourceTree = "<group>"; };
+		583ED8A82011D54F004F2415 /* LivePhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePhotoViewController.swift; sourceTree = "<group>"; };
+		583ED8AA20128607004F2415 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		583ED8AD20131F2E004F2415 /* JPEG.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JPEG.swift; sourceTree = "<group>"; };
+		583ED8AE20131F2E004F2415 /* QuickTimeMov.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuickTimeMov.swift; sourceTree = "<group>"; };
 		58C20F031FFF5042007B42BD /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		58C20F08200032BF007B42BD /* FirebaseFileChangeStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirebaseFileChangeStream.swift; sourceTree = "<group>"; };
 		58C20F0A2000333A007B42BD /* FirebaseUploadStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseUploadStream.swift; sourceTree = "<group>"; };
@@ -125,6 +133,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		583ED8AC20131F2E004F2415 /* LoveLiver */ = {
+			isa = PBXGroup;
+			children = (
+				583ED8AD20131F2E004F2415 /* JPEG.swift */,
+				583ED8AE20131F2E004F2415 /* QuickTimeMov.swift */,
+			);
+			path = LoveLiver;
+			sourceTree = "<group>";
+		};
 		58C20F07200032BF007B42BD /* streams */ = {
 			isa = PBXGroup;
 			children = (
@@ -140,6 +157,7 @@
 				58ECCF771FFEEE4300E58542 /* Extension.swift */,
 				58C20F0D20016B8D007B42BD /* DocumentManager.swift */,
 				58C20F152004BB39007B42BD /* MetalVideoConverter.swift */,
+				583ED8AA20128607004F2415 /* Helpers.swift */,
 			);
 			path = helpers;
 			sourceTree = "<group>";
@@ -182,6 +200,7 @@
 				58ECCF791FFEFE4100E58542 /* CameraViewController.swift */,
 				58C20F0F2001AC69007B42BD /* ImageViewController.swift */,
 				58C20F112001AC83007B42BD /* VideoViewController.swift */,
+				583ED8A82011D54F004F2415 /* LivePhotoViewController.swift */,
 				58ECCF751FFEE76100E58542 /* ThumbnailCollectionViewCell.swift */,
 				58C20F19200584E9007B42BD /* metal */,
 				58C20F0C20016B19007B42BD /* helpers */,
@@ -218,6 +237,7 @@
 		58ECCF691FFE23A600E58542 /* components */ = {
 			isa = PBXGroup;
 			children = (
+				583ED8AC20131F2E004F2415 /* LoveLiver */,
 				58ECCF6A1FFE23A600E58542 /* SwiftyCam */,
 			);
 			path = components;
@@ -542,21 +562,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				58C20F09200032BF007B42BD /* FirebaseFileChangeStream.swift in Sources */,
+				583ED8AB20128607004F2415 /* Helpers.swift in Sources */,
 				58ECCF781FFEEE4300E58542 /* Extension.swift in Sources */,
 				58ECCF7A1FFEFE4100E58542 /* CameraViewController.swift in Sources */,
 				58C20F0B2000333A007B42BD /* FirebaseUploadStream.swift in Sources */,
 				58C20F0E20016B8D007B42BD /* DocumentManager.swift in Sources */,
+				583ED8A92011D54F004F2415 /* LivePhotoViewController.swift in Sources */,
 				58ECCF3E1FFE1A7500E58542 /* ViewController.swift in Sources */,
 				58ECCF711FFE23A600E58542 /* PreviewView.swift in Sources */,
 				58C20F162004BB39007B42BD /* MetalVideoConverter.swift in Sources */,
 				58C20F102001AC69007B42BD /* ImageViewController.swift in Sources */,
 				58C20F18200572DC007B42BD /* MetalPipeline.swift in Sources */,
 				58ECCF701FFE23A600E58542 /* Orientation.swift in Sources */,
+				583ED8AF20131F2E004F2415 /* JPEG.swift in Sources */,
 				58ECCF721FFE23A600E58542 /* SwiftyCamButton.swift in Sources */,
 				58C20F122001AC83007B42BD /* VideoViewController.swift in Sources */,
 				58C20F1B2005856D007B42BD /* ImageStitchingProcessor.metal in Sources */,
 				58ECCF731FFE23A600E58542 /* SwiftyCamViewController.swift in Sources */,
 				58ECCF761FFEE76100E58542 /* ThumbnailCollectionViewCell.swift in Sources */,
+				583ED8B020131F2E004F2415 /* QuickTimeMov.swift in Sources */,
 				58ECCF741FFE23A600E58542 /* SwiftyCamViewControllerDelegate.swift in Sources */,
 				58ECCF7C1FFF06C900E58542 /* SwiftyRecordButton.swift in Sources */,
 				58ECCF3C1FFE1A7500E58542 /* AppDelegate.swift in Sources */,
